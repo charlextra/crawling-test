@@ -8,6 +8,7 @@ use App\Services\CustomLinkService;
 use App\Enums\Action;
 use App\Models\Crawler;
 use App\Traits\Controllers\WithMessage;
+use Illuminate\Http\Request;
 
 class CustomLinkController extends Controller {
 
@@ -38,9 +39,14 @@ class CustomLinkController extends Controller {
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Http\Response
      */
-    public function crawls()
+    public function crawls(Request $request)
     {
-        $crawlers = Crawler::orderBy('status', 'asc')->orderBy('id', 'desc')->paginate(10);
+        if($request->has('url')){
+            $crawlers = Crawler::where('url','LIKE','%'.$request->url.'%')->orderBy('status', 'asc')->orderBy('id', 'desc')->paginate(10);
+        }else {
+            $crawlers = Crawler::orderBy('status', 'asc')->orderBy('id', 'desc')->paginate(10);
+        }
+
         return view('crawls')->with('crawlers', $crawlers);
     }
 

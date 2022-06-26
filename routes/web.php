@@ -13,6 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [App\Http\Controllers\CustomLinkController::class, 'index']);
+Route::get('crawls', [App\Http\Controllers\CustomLinkController::class, 'crawls']);
+Route::post('custom_links', [App\Http\Controllers\CustomLinkController::class, 'store']);

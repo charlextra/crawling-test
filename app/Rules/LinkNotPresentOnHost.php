@@ -10,15 +10,18 @@ class LinkNotPresentOnHost implements Rule
     use HostStatus;
 
     private $http_exception;
+    private $second_attribute;
+    private $third_attribute;
 
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(array $second_attribute, array $third_attribute)
     {
-
+        $this->second_attribute = $second_attribute;
+        $this->third_attribute = $third_attribute;
     }
 
     /**
@@ -30,7 +33,9 @@ class LinkNotPresentOnHost implements Rule
      */
     public function passes($attribute, $value)
     {
-        $response = $this->isLinkNotPresentOnHost($value);
+        $splitAttributeName = explode('.',$attribute);
+        $i = end($splitAttributeName);
+        $response = $this->isLinkNotPresentOnHost($value, $this->second_attribute[$i], $this->third_attribute[$i]);
         if(is_bool($response)){
             return $response;
         }

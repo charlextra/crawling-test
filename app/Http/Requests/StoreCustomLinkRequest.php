@@ -3,13 +3,11 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use App\Rules\AvalaibleHost;
 use App\Rules\LinkNotPresentOnHost;
 
 class StoreCustomLinkRequest extends FormRequest
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -31,18 +29,15 @@ class StoreCustomLinkRequest extends FormRequest
         return  [
                     'url_destination.*' => [
                         'required',
-                        'distinct',
                         'regex:(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})',
-                        Rule::unique('custom_links', 'url_destination'),
                         new AvalaibleHost,
-                        new LinkNotPresentOnHost,
                     ],
 
                     'url_ajout.*' => [
                         'required',
                         'regex:(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})',
                         new AvalaibleHost,
-                        new LinkNotPresentOnHost,
+                        new LinkNotPresentOnHost((array)$this->request->get('ancre'), (array)$this->request->get('url_destination')),
                     ],
 
                     'ancre.*' => ['required'],

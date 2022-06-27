@@ -28,19 +28,4 @@ abstract class BaseEnum
     {
         return array_values(static::getConstants());
     }
-
-    /**
-     * Get assoc array of constants with values and labels.
-     *
-     * @return array
-     */
-    public static function getValuesWithLabels()
-    {
-        $valuesWithLabels = [];
-        foreach (self::values() as $value) {
-            $valuesWithLabels[$value] = ucfirst(str_replace('_', ' ', $value));
-        }
-
-        return $valuesWithLabels;
-    }
 }

@@ -15,7 +15,7 @@ class CreateCustomLinksTable extends Migration
     {
         Schema::create('custom_links', function (Blueprint $table) {
             $table->id();
-            $table->string('url_destination')->unique();
+            $table->string('url_destination');
             $table->text('ancre');
             $table->string('url_ajout');
             $table->timestamps();

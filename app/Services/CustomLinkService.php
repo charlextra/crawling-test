@@ -1,9 +1,7 @@
 <?php
 
 namespace App\Services;
-use App\Models\Crawler;
 use App\Repositories\CustomLinkRepository;
-use Illuminate\Http\Request;
 
 
 /**
@@ -33,25 +31,16 @@ class CustomLinkService
                 $items[$i][$key] = $element;
                 $i++;
             }
-
         }
-
+        $this->save($i, $items);
+    }
+    private function save($i, $items){
         for ($j=0; $j < $i; $j++) {
             $this->customLinkRepository->store([
                 'url_destination' => $items[$j]['url_destination'],
-                'url_ajout' => $items[$j]['url_ajout'],
+                'url_ajout' => $items[$j]['url_ajout'].'#'.$items[$j]['ancre'],
                 'ancre' => $items[$j]['ancre'],
             ]);
         }
-    }
-
-    public static function listCrawls(Request $request)
-    {
-        if($request->has('url')){
-            $crawlers = Crawler::where('url','LIKE','%'.$request->input('url').'%')->orderBy('status', 'asc')->orderBy('id', 'desc')->paginate(10);
-        }else {
-            $crawlers = Crawler::orderBy('status', 'asc')->orderBy('id', 'desc')->paginate(10);
-        }
-        return $crawlers;
     }
 }

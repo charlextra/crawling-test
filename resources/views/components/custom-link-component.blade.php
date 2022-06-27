@@ -8,7 +8,7 @@
     }
 </style>
 
-<div class="container d-flex justify-content-center vh-100 align-items-center">                                    
+<div class="container d-flex justify-content-center vh-100 align-items-center">
     <div class="card">
         <div class="card text-center">
             <div class="card-header">
@@ -73,7 +73,7 @@
 <script type="text/javascript">
     $(document).ready(function(){
         $("body").on("click",".add_new_frm_field_btn", function (){
-            console.log("clicked");
+
             var index = $(".form_field_outer").find(".form_field_outer_row").length;
             $(".form_field_outer").append(`
                 <div class="row form_field_outer_row needs-validation">
@@ -105,15 +105,17 @@
                 </div>
                 `);
 
-            $(".form_field_outer").find(".remove_node_btn_frm_field:not(:first)").prop("disabled", false);
-            $(".form_field_outer").find(".remove_node_btn_frm_field").first().prop("disabled", true);
+            $(".form_field_outer").find(".remove_node_btn_frm_field:not(:first)").prop("disabled", true).removeClass("btn-outline-danger").addClass("btn-outline-secondary");
+            $(".form_field_outer").find(".remove_node_btn_frm_field").last().prop("disabled", false).removeClass("btn-outline-secondary").addClass("btn-outline-danger");
+            $(".form_field_outer").find(".remove_node_btn_frm_field").first().prop("disabled", true).removeClass("btn-outline-danger").addClass("btn-outline-secondary");
+
         });
     });
 
     $(document).ready(function(){
         $("body").on("click", ".remove_node_btn_frm_field", function () {
             $(this).closest(".form_field_outer_row").remove();
-            console.log("success");
+            $(".form_field_outer").find(".remove_node_btn_frm_field").last().prop("disabled", false).removeClass("btn-outline-secondary").addClass("btn-outline-danger");
         });
     });
 
@@ -135,14 +137,14 @@
                     form.trigger("reset");
                     progress.hide();
                     $('.invalid-feedback').text('');
-                    $("#toast-success .toast-body").text(data.message); 
+                    $("#toast-success .toast-body").text(data.message);
                     var toast_success = new bootstrap.Toast($("#toast-success"))
                     toast_success.show()
                 },
                 error: function(data){$('.invalid-feedback').text('');
                 progress.hide();
                 $.each( data.responseJSON.errors, function( key, value ) {
-                    $('.invalid-feedback').text(''); 
+                    $('.invalid-feedback').text('');
                     $('#'+key.replace('.','_')+'_err').text(value).show();
                 });
                 $("#toast-error .toast-body").text('Erreur ! veuillez verifier les champs');

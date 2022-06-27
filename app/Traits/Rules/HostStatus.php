@@ -1,6 +1,11 @@
 <?php
 
 namespace App\Traits\Rules;
+
+use DOMDocument;
+use DOMXPath;
+
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Http;
 
 /**
@@ -9,38 +14,40 @@ use Illuminate\Support\Facades\Http;
  */
 trait HostStatus
 {
-    private function host($url) {
+    private function host($url): string
+    {
 
         $result = parse_url($url);
 
-        return $result['scheme']."://".$result['host'];
+        return $result['scheme'] . "://" . $result['host'];
     }
 
-    private function host3W($url) {
+    private function host3W($url): string
+    {
 
         $result = parse_url($url);
 
-        return $result['scheme']."://www.".$result['host'];
+        return $result['scheme'] . "://www." . $result['host'];
     }
 
-    private function getIp($url)
+    private function getIp($url): string
     {
         $host = $this->host($url);
 
         return gethostbyname(parse_url($host, PHP_URL_HOST));
     }
 
-    public function isAvalaibleHost($url)
+    public function isAvalaibleHost($url): int
     {
 
-       $ip_address = $this->getIp($url);
-       $ch = curl_init($ip_address);
-       curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-       curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-       $data = curl_exec($ch);
-       $health = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-       curl_close($ch);
+        $ip_address = $this->getIp($url);
+        $ch = curl_init($ip_address);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $data = curl_exec($ch);
+        $health = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
         if ($health) {
             return 1;
@@ -51,104 +58,110 @@ trait HostStatus
 
     public function isLinkNotPresentOnHost($url)
     {
+        $destination = $this->getDestinationUrls($url);
+        if(array_key_exists('ErrorException', $destination)){
+            return $destination['ErrorException'];
+        }
         return in_array($this->host3W($url), $this->getDestinationUrls($url));
     }
 
-        private function getDestinationUrls($url = '')
+    private function getDestinationUrls($url = ''): array
     {
         $urls = [];
 
-        if($url != ''){
-            $baseUrl = $url;
-            $prefix = 'https';
-            if (strpos($baseUrl, 'ttps://') === false){
-                $prefix = 'http';
-            }
-
-            $response = Http::get($url);
-            $html = $response->body();
-            //Getting the exact url without http or https
-            $url = str_replace('http://www.', '',$url);
-            $url = str_replace('https://www.', '',$url);
-            $url = str_replace('http://', '',$url);
-            $url = str_replace('https://', '',$url);
-            //Parsing the url for getting host information
-            $parse = parse_url('https://'.$url);
-            //Parsing the html of the base url
-            $dom = new \DOMDocument();
-            @$dom->loadHTML($html);
-            // grab all the on the page
-            $xpath = new \DOMXPath($dom);
-            //finding the a tag
-            $hrefs = $xpath->evaluate("/html/body//a");
-            //Loop to display all the links
-            $length = $hrefs->length;
-            //Converting URLs to add the www prefix to host to a common array
-            $baseUrl = str_replace('http://'.$parse['host'], 'http://www.'.$parse['host'],$baseUrl);
-            $baseUrl = str_replace('https://'.$parse['host'], 'https://www.'.$parse['host'],$baseUrl);
-            $urls = [$baseUrl];
-            $allUrls = [$baseUrl];
-            for ($i = 0; $i < $length; $i++) {
-                $href = $hrefs->item($i);
-                $url = $href->getAttribute('href');
-                $url = str_replace('http://'.$parse['host'], 'http://www.'.$parse['host'],$url);
-                $url = str_replace('https://'.$parse['host'], 'https://www.'.$parse['host'],$url);
-                //Replacing the / at the end of any url if present
-                if(substr($url, -1, 1) == '/'){
-                    $url = substr_replace($url, "", -1);
+        if ($url != '') {
+            try {
+                $baseUrl = $url;
+                $prefix = 'https';
+                if (strpos($baseUrl, 'ttps://') === false) {
+                    $prefix = 'http';
                 }
-                array_push($allUrls, $url);
-            }
-
-            //Looping for filtering the URLs into a distinct array
-            foreach($allUrls as $url){
-                //Limiting the number of urls on the site
-                if(count($urls) >= 300){
-                    break;
-                }
-                //Filter the null links and images
-                if(strpos($url, '#') === false)
-                {
-                    //Filtering the links with host
-                    if(strpos($url, 'https://'.$parse['host']) !== false || strpos($url, 'https://www.'.$parse['host']) !== false){
-                        //Replacing the / at the end of any url if present
-                        if(substr($url, -1, 1) == '/'){
-                            $url = substr_replace($url, "", -1);
-                        }
-                        //Checking if the link is already preset in the final array
-                        $urlSuffix = str_replace('http://www.', '',$url);
-                        $urlSuffix = str_replace('https://www.', '',$urlSuffix);
-                        $urlSuffix = str_replace('http://', '',$urlSuffix);
-                        $urlSuffix = str_replace('https://', '',$urlSuffix);
-
-                        if($urlSuffix != $parse['host']){
-                            array_push($urls, $url);
-                        }
+                $response = Http::get($url);
+                $html = $response->body();
+                //Getting the exact url without http or https
+                $url = str_replace('http://www.', '', $url);
+                $url = str_replace('https://www.', '', $url);
+                $url = str_replace('http://', '', $url);
+                $url = str_replace('https://', '', $url);
+                //Parsing the url for getting host information
+                $parse = parse_url('https://' . $url);
+                //Parsing the html of the base url
+                $dom = new DOMDocument();
+                @$dom->loadHTML($html);
+                // grab all the on the page
+                $xpath = new DOMXPath($dom);
+                //finding the a tag
+                $hrefs = $xpath->evaluate("/html/body//a");
+                //Loop to display all the links
+                $length = $hrefs->length;
+                //Converting URLs to add the www prefix to host to a common array
+                $baseUrl = str_replace('http://' . $parse['host'], 'http://www.' . $parse['host'], $baseUrl);
+                $baseUrl = str_replace('https://' . $parse['host'], 'https://www.' . $parse['host'], $baseUrl);
+                $urls = [$baseUrl];
+                $allUrls = [$baseUrl];
+                for ($i = 0; $i < $length; $i++) {
+                    $href = $hrefs->item($i);
+                    $url = $href->getAttribute('href');
+                    $url = str_replace('http://' . $parse['host'], 'http://www.' . $parse['host'], $url);
+                    $url = str_replace('https://' . $parse['host'], 'https://www.' . $parse['host'], $url);
+                    //Replacing the / at the end of any url if present
+                    if (substr($url, -1, 1) == '/') {
+                        $url = substr_replace($url, "", -1);
                     }
-                    //Filtering the links without host
-                    if(strpos($url, $parse['host']) === false){
-                        if(substr($url, 0, 1) == '/'){
+                    array_push($allUrls, $url);
+                }
+
+                //Looping for filtering the URLs into a distinct array
+                foreach ($allUrls as $url) {
+                    //Limiting the number of urls on the site
+                    if (count($urls) >= 300) {
+                        break;
+                    }
+                    //Filter the null links and images
+                    if (strpos($url, '#') === false) {
+                        //Filtering the links with host
+                        if (strpos($url, 'https://' . $parse['host']) !== false || strpos($url, 'https://www.' . $parse['host']) !== false) {
                             //Replacing the / at the end of any url if present
-                            if(substr($url, -1, 1) == '/'){
+                            if (substr($url, -1, 1) == '/') {
                                 $url = substr_replace($url, "", -1);
                             }
-                            $newUrl = 'http://www.'.$parse['host'].$url;
-                            $secondUrl = 'https://www.'.$parse['host'].$url;
-                            if($url != $parse['host']){
-                                //Checking if the link is already preset in the final array and the common array
-                                if(!in_array($secondUrl, $urls) && !in_array($secondUrl, $allUrls) && !in_array($newUrl, $allUrls)) {
-                                    if ($prefix == 'https') {
-                                        $newUrl = $secondUrl;
+                            //Checking if the link is already preset in the final array
+                            $urlSuffix = str_replace('http://www.', '', $url);
+                            $urlSuffix = str_replace('https://www.', '', $urlSuffix);
+                            $urlSuffix = str_replace('http://', '', $urlSuffix);
+                            $urlSuffix = str_replace('https://', '', $urlSuffix);
+
+                            if ($urlSuffix != $parse['host']) {
+                                array_push($urls, $url);
+                            }
+                        }
+                        //Filtering the links without host
+                        if (strpos($url, $parse['host']) === false) {
+                            if (substr($url, 0, 1) == '/') {
+                                //Replacing the / at the end of any url if present
+                                if (substr($url, -1, 1) == '/') {
+                                    $url = substr_replace($url, "", -1);
+                                }
+                                $newUrl = 'http://www.' . $parse['host'] . $url;
+                                $secondUrl = 'https://www.' . $parse['host'] . $url;
+                                if ($url != $parse['host']) {
+                                    //Checking if the link is already preset in the final array and the common array
+                                    if (!in_array($secondUrl, $urls) && !in_array($secondUrl, $allUrls) && !in_array($newUrl, $allUrls)) {
+                                        if ($prefix == 'https') {
+                                            $newUrl = $secondUrl;
+                                        }
+                                        array_push($urls, $newUrl);
                                     }
-                                    array_push($urls, $newUrl);
                                 }
                             }
                         }
                     }
                 }
+
+            } catch (RequestException $e) {
+                return ['ErrorException' => $e->getMessage()];
             }
         }
-
         return $urls;
     }
 }

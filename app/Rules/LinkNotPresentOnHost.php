@@ -9,6 +9,8 @@ class LinkNotPresentOnHost implements Rule
 {
     use HostStatus;
 
+    private $http_exception;
+
     /**
      * Create a new rule instance.
      *
@@ -28,7 +30,12 @@ class LinkNotPresentOnHost implements Rule
      */
     public function passes($attribute, $value)
     {
-        return $this->isLinkNotPresentOnHost($value);
+        $response = $this->isLinkNotPresentOnHost($value);
+        if(is_bool($response)){
+            return $response;
+        }
+        $this->http_exception = $response;
+        return false;
     }
 
     /**
@@ -38,6 +45,6 @@ class LinkNotPresentOnHost implements Rule
      */
     public function message()
     {
-        return 'The link is already present on the destination.';
+        return $this->http_exception ? : 'Le lien est déjà présent dans la destination.';
     }
 }

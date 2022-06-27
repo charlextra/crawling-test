@@ -7,11 +7,11 @@ return [
     | Messages Language Lines
     |--------------------------------------------------------------------------
     |
-    | The following language lines are used for various messages that we need 
+    | The following language lines are used for various messages that we need
     | to display to the user.
-    | 
+    |
     |
     */
-    
-    'EntityCreated' => 'Oprération réussie';
+
+    'EntityCreated' => 'Enregistrement effectué',
 ];

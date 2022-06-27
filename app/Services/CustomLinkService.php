@@ -1,7 +1,10 @@
 <?php
 
 namespace App\Services;
+use App\Models\Crawler;
 use App\Repositories\CustomLinkRepository;
+use Illuminate\Http\Request;
+
 
 /**
  * Class CustomLinkService.
@@ -40,5 +43,15 @@ class CustomLinkService
                 'ancre' => $items[$j]['ancre'],
             ]);
         }
+    }
+
+    public static function listCrawls(Request $request)
+    {
+        if($request->has('url')){
+            $crawlers = Crawler::where('url','LIKE','%'.$request->input('url').'%')->orderBy('status', 'asc')->orderBy('id', 'desc')->paginate(10);
+        }else {
+            $crawlers = Crawler::orderBy('status', 'asc')->orderBy('id', 'desc')->paginate(10);
+        }
+        return $crawlers;
     }
 }

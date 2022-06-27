@@ -28,7 +28,7 @@
                                     <p>
                                         <div class="form-group col-md-10">
                                             <div class="input-group has-validation">
-                                                <input type="text" class="form-control w_90" name="url_destination[]" id="url_destination_0" placeholder="URL de l'article de destination" />
+                                                <input type="url" class="form-control w_90" name="url_destination[]" id="url_destination_0" placeholder="URL de l'article de destination" />
                                                 <div class="invalid-feedback" id="url_destination_0_err"></div>
                                             </div>
                                         </div>
@@ -40,7 +40,7 @@
                                         </div>
                                         <div class="form-group col-md-5">
                                             <div class="input-group has-validation">
-                                                <input type="text" class="form-control w_90" name="url_ajout[]" id="url_ajout_0" placeholder="URL du lien à ajouter" />
+                                                <input type="url" class="form-control w_90" name="url_ajout[]" id="url_ajout_0" placeholder="URL du lien à ajouter" />
                                                 <div class="invalid-feedback" id="url_ajout_0_err"></div>
                                             </div>
                                         </div>
@@ -80,7 +80,7 @@
                 <p>
                 <div class="form-group col-md-10">
                 <div class="input-group has-validation">
-                <input type="text" class="form-control w_90" name="url_destination[]" id="url_destination_${index}" placeholder="URL de l'article de destination" />
+                <input type="url" class="form-control w_90" name="url_destination[]" id="url_destination_${index}" placeholder="URL de l'article de destination" />
                 <div class="invalid-feedback" id="url_destination_${index}_err"></div>
                 </div>
                 </div>
@@ -92,7 +92,7 @@
                 </div>
                 <div class="form-group col-md-5">
                 <div class="input-group has-validation">
-                <input type="text" class="form-control w_90" name="url_ajout[]" id="url_ajout_${index}" placeholder="URL du lien à ajouter" />
+                <input type="url" class="form-control w_90" name="url_ajout[]" id="url_ajout_${index}" placeholder="URL du lien à ajouter" />
                 <div class="invalid-feedback" id="url_ajout_${index}_err"></div>
                 </div>
                 </div>
@@ -118,7 +118,7 @@
     });
 
     $(document).ready(function(){
-        
+
         var form = $('.form');
         var progress = $('#progress');
         form.on('submit', function(e) {

@@ -41,12 +41,7 @@ class CustomLinkController extends Controller {
      */
     public function crawls(Request $request)
     {
-        if($request->has('url')){
-            $crawlers = Crawler::where('url','LIKE','%'.$request->url.'%')->orderBy('status', 'asc')->orderBy('id', 'desc')->paginate(10);
-        }else {
-            $crawlers = Crawler::orderBy('status', 'asc')->orderBy('id', 'desc')->paginate(10);
-        }
-
+        $crawlers = $request->has('url') ? Crawler::getCrawlsByUrl($request->url) : Crawler::getCrawls();
         return view('crawls')->with('crawlers', $crawlers);
     }
 

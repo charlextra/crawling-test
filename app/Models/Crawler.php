@@ -16,7 +16,7 @@ class Crawler extends Model
 {
     /**
      * The "type" of the auto-incrementing ID.
-     * 
+     *
      * @var string
      */
     protected $keyType = 'integer';
@@ -25,4 +25,16 @@ class Crawler extends Model
      * @var array
      */
     protected $fillable = ['url', 'status', 'path', 'created_at', 'updated_at'];
+
+    public static function getCrawlsByUrl($url){
+        return self::where('url','LIKE','%'.$url.'%')
+            ->orderBy('status', 'asc')
+            ->orderBy('id', 'desc')
+            ->paginate(10);
+    }
+    public static function getCrawls(){
+        return self::orderBy('status', 'asc')
+            ->orderBy('id', 'desc')
+            ->paginate(10);
+    }
 }

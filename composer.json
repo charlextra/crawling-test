@@ -18,7 +18,8 @@
         "symfony/dom-crawler": "^5.4",
         "timwassenburg/laravel-service-generator": "^1.0",
         "ext-dom": "*",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-http": "*"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
